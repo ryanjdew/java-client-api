@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.marklogic</groupId>
+  <artifactId>client-api-java</artifactId>
+  <version>3.0-SNAPSHOT</version>
+  <versioning>
+    <versions>
+      <version>3.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20140723185614</lastUpdated>
+  </versioning>
+</metadata>
