@@ -1,43 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metadata modelVersion="1.1.0">
+<metadata>
   <groupId>com.marklogic</groupId>
   <artifactId>client-api-java</artifactId>
   <version>3.0-SNAPSHOT</version>
   <versioning>
     <snapshot>
-      <timestamp>20140811.182314</timestamp>
-      <buildNumber>1</buildNumber>
+      <timestamp>20140919.154317</timestamp>
+      <buildNumber>2</buildNumber>
     </snapshot>
-    <lastUpdated>20140811182314</lastUpdated>
-    <snapshotVersions>
-      <snapshotVersion>
-        <extension>jar</extension>
-        <value>3.0-20140811.182314-1</value>
-        <updated>20140811182314</updated>
-      </snapshotVersion>
-      <snapshotVersion>
-        <extension>pom</extension>
-        <value>3.0-20140811.182314-1</value>
-        <updated>20140811182314</updated>
-      </snapshotVersion>
-      <snapshotVersion>
-        <classifier>javadoc</classifier>
-        <extension>jar</extension>
-        <value>3.0-20140811.182314-1</value>
-        <updated>20140811182314</updated>
-      </snapshotVersion>
-      <snapshotVersion>
-        <classifier>sources</classifier>
-        <extension>jar</extension>
-        <value>3.0-20140811.182314-1</value>
-        <updated>20140811182314</updated>
-      </snapshotVersion>
-      <snapshotVersion>
-        <classifier>with-dependencies</classifier>
-        <extension>zip</extension>
-        <value>3.0-20140811.182314-1</value>
-        <updated>20140811182314</updated>
-      </snapshotVersion>
-    </snapshotVersions>
+    <lastUpdated>20140919154317</lastUpdated>
   </versioning>
 </metadata>
