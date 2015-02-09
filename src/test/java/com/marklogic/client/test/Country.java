@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package com.marklogic.client.test;
+
+import com.marklogic.client.pojo.annotation.PathIndexProperty;
+import com.marklogic.client.pojo.annotation.PathIndexProperty.ScalarType;
 
 public class Country {
     private String name, continent, currencyCode, currencyName, isoCode;
@@ -36,6 +39,7 @@ public class Country {
         return this;
     }
 
+    @PathIndexProperty(scalarType=ScalarType.STRING)
     public String getContinent() {
         return continent;
     }

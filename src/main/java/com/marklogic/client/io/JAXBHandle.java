@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -278,6 +278,12 @@ public class JAXBHandle<C>
 		} catch (UnsupportedEncodingException e) {
 			logger.error("Failed to unmarshall object read from database document",e);
 			throw new MarkLogicIOException(e);
+		}  finally {
+			try {
+				content.close();
+			} catch (IOException e) {
+				// ignore.
+			}
 		}
 	}
     @Override

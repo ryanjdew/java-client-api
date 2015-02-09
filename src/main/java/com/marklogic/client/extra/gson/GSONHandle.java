@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.marklogic.client.extra.gson;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -182,7 +183,14 @@ public class GSONHandle
 			throw new MarkLogicIOException(e);
 		} catch (UnsupportedEncodingException e) {
 			throw new MarkLogicIOException(e);
+		} finally {
+			try {
+				content.close();
+			} catch (IOException e) {
+				// ignore.
+			}
 		}
+
 
 	}
 	@Override

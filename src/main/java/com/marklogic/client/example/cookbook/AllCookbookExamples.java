@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ public class AllCookbookExamples {
 		DocumentFormats.run(           props );
 		DocumentOutputStream.run(      props );
 		JAXBDocument.run(              props );
-		KeyValueSearch.run(            props );
 		QueryOptions.run(              props );
  		StringSearch.run(              props );
  		StructuredSearch.run(          props );

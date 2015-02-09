@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import com.marklogic.client.document.GenericDocumentManager;
 import com.marklogic.client.document.JSONDocumentManager;
 import com.marklogic.client.query.QueryManager;
 import com.marklogic.client.util.RequestLogger;
+import com.marklogic.client.eval.ServerEvaluationCall;
 import com.marklogic.client.extensions.ResourceManager;
 import com.marklogic.client.DatabaseClientFactory.HandleFactoryRegistry;
 import com.marklogic.client.admin.ServerConfigurationManager;
@@ -136,12 +137,6 @@ public class DatabaseClientImpl implements DatabaseClient {
 
 	@Override
     public <T extends ResourceManager> T init(String resourceName, T resourceManager) {
-		return init(resourceName, resourceManager, null);
-	}
-
-	@Override
-    public <T extends ResourceManager> T init(String resourceName, T resourceManager, 
-	  ExtensionMetadata.ScriptLanguage scriptLanguage) {
 		if (resourceManager == null)
 			throw new IllegalArgumentException("Cannot initialize null resource manager");
 		if (resourceName == null)
@@ -150,7 +145,7 @@ public class DatabaseClientImpl implements DatabaseClient {
 			throw new IllegalArgumentException("Cannot initialize resource manager with empty resource name");
 
 		((ResourceManagerImplementation) resourceManager).init(
-				new ResourceServicesImpl(services,resourceName,scriptLanguage)
+				new ResourceServicesImpl(services,resourceName)
 				);
 
 		return resourceManager;
@@ -181,5 +176,10 @@ public class DatabaseClientImpl implements DatabaseClient {
 	// undocumented backdoor access to JerseyServices
 	public RESTServices getServices() {
 		return services;
+	}
+
+	@Override
+	public ServerEvaluationCall newServerEval() {
+		return new ServerEvaluationCallImpl(services, getHandleRegistry());
 	}
 }

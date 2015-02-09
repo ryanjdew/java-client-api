@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ class BinaryDocumentImpl
 		else
 			extraParams.put("range", "bytes="+String.valueOf(start));
 
-		return read(desc, metadataHandle, contentHandle, transform, transaction, extraParams);
+		return read(desc, metadataHandle, contentHandle, transform, transaction, null, extraParams);
 	}
 
 	public MetadataExtraction getMetadataExtraction() {

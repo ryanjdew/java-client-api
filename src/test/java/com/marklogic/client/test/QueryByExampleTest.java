@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 MarkLogic Corporation
+ * Copyright 2013-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,6 @@ public class QueryByExampleTest {
         documents = jdm.search(query, 1, new JacksonHandle());
         assertEquals("6 json documents should have matched", documents.getTotalSize(), 6);
         
-        jdm.setResponseFormat(Format.XML);
         documents = jdm.search(query, 1, new SearchHandle());
         assertEquals("6 json documents should have matched", documents.getTotalSize(), 6);
     }

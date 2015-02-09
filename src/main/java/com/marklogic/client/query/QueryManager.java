@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,19 +116,27 @@ public interface QueryManager {
     public StringQueryDefinition newStringDefinition(String optionsName);
 
     /**
+     * @deprecated Use {@link RawQueryByExampleDefinition Query By Example} instead for easy-to-write and much more full-featured key/value search.
+     * <br><br>
+     *
      * Creates a query definition based on a locator such as a JSON key,
      * element name, or element and attribute name and the default query
      * options.
      * @return	the key-value query definition
      */
+    @Deprecated
     public KeyValueQueryDefinition newKeyValueDefinition();
 
     /**
+     * @deprecated Use {@link RawQueryByExampleDefinition Query By Example} instead for easy-to-write and much more full-featured key/value search.
+     * <br><br>
+     *
      * Creates a query definition based on a locator and on named
      * query options saved previously.
      * @param optionsName	the name of the query options
      * @return	the key-value query definition
      */
+    @Deprecated
     public KeyValueQueryDefinition newKeyValueDefinition(String optionsName);
 
     /**
@@ -208,27 +216,39 @@ public interface QueryManager {
     public ValuesListDefinition newValuesListDefinition(String optionsName);
 
     /**
+     * @deprecated Use {@link RawQueryByExampleDefinition Query By Example} instead for easy-to-write and much more full-featured key/value search.
+     * <br><br>
+     *
      * Creates a locator for a key-value query based on an element name,
      * which may have namespace.
      * @param element	the element name
      * @return	the locator for a key-value query
      */
+    @Deprecated
     public ElementLocator newElementLocator(QName element);
 
     /**
+     * @deprecated Use {@link RawQueryByExampleDefinition Query By Example} instead for easy-to-write and much more full-featured key/value search.
+     * <br><br>
+     *
      * Creates a locator for a key-value query based on an element name
      * and attribute name, either or both of which may have a namespace.
      * @param element	the element name
      * @param attribute	the attribute name
      * @return	the locator for a key-value query
      */
+    @Deprecated
     public ElementLocator newElementLocator(QName element, QName attribute);
 
     /**
+     * @deprecated Use {@link RawQueryByExampleDefinition Query By Example} instead for easy-to-write and much more full-featured key/value search.
+     * <br><br>
+     *
      * Creates a locator for a key-value query based on a JSON key.
      * @param key	the JSON key
      * @return	the locator for a key-value query
      */
+    @Deprecated
     public KeyLocator newKeyLocator(String key);
 
     /**

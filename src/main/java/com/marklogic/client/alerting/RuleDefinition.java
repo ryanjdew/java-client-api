@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 MarkLogic Corporation
+ * Copyright 2013-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -262,12 +262,15 @@ public class RuleDefinition extends BaseHandle<InputStream, OutputStreamSender>
 					"description", RequestConstants.RESTAPI_NS);
 			serializer.writeCharacters(getDescription());
 			serializer.writeEndElement();
+			serializer.flush();
 
 			// logger.debug("Send: " + new String(queryPayload));
 			XMLEventWriter eventWriter = factory.createXMLEventWriter(out);
 			for (XMLEvent event : this.queryPayload) {
 				eventWriter.add(event);
 			}
+			eventWriter.flush();
+			out.flush();
 
 			writeMetadataElement(serializer);
 

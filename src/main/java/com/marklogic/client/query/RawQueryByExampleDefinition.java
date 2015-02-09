@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 MarkLogic Corporation
+ * Copyright 2013-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,22 @@ import com.marklogic.client.io.marker.StructureWriteHandle;
 
 /**
  * A RawQueryByExampleDefinition provides access to a simple
- * query by example in an JSON or XML representation.
+ * query by example in an JSON or XML representation. For instance:
+ * <pre>{@code
+ *QueryManager queryMgr = databaseClient.newQueryManager();
+ *String rawXMLQuery = "{ \"$query\": { \"author\": \"Mark Twain\" } }";
+ *StringHandle qbeHandle = new StringHandle(rawXMLQuery).withFormat(Format.JSON);
+ *RawQueryByExampleDefinition query = queryMgr.newRawQueryByExampleDefinition(qbeHandle, "myoptions");
+ *SearchHandle resultsHandle = queryMgr.search(query, new SearchHandle());
+ *}</pre>
+ *
+ * @see QueryManager#newRawCombinedQueryDefinitionAs(Format, Object)
+ * @see QueryManager#newRawCombinedQueryDefinitionAs(Format, Object, String)
+ * @see QueryManager#newRawQueryByExampleDefinition(StructureWriteHandle)
+ * @see QueryManager#newRawQueryByExampleDefinition(StructureWriteHandle, String)
+ * @see <a href="http://docs.marklogic.com/guide/java">MarkLogic Java Application Developer's Guide</a>
+ *      &gt; <a href="http://docs.marklogic.com/guide/java/searches">Searching</a> 
+ *      &gt; <a href="http://docs.marklogic.com/guide/java/searches#id_33275">Prototype a Query Using Query By Example</a>
  */
 public interface RawQueryByExampleDefinition extends RawQueryDefinition {
 	/**

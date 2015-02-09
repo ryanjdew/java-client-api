@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -389,13 +389,16 @@ public class DOMHandle
 			domInput.setByteStream(content);
 
 			this.content = parser.parse(domInput);
-			content.close();
-		} catch (IOException e) {
-			logger.error("Failed to parse DOM document from input stream",e);
-			throw new MarkLogicInternalException(e);
 		} catch (ParserConfigurationException e) {
 			logger.error("Failed to parse DOM document from input stream",e);
 			throw new MarkLogicInternalException(e);
+		} finally {
+			try {
+				content.close();
+			} catch (IOException e) {
+				//ignore
+			}
+			
 		}
 	}
 	@Override

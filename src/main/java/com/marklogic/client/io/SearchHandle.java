@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1035,7 +1035,9 @@ public class SearchHandle
 	    private void handleResponse(XMLEventReader reader, StartElement element)
 	    throws XMLStreamException {
 	    	tempSnippetType  = getAttribute(element, "snippet-format");
-	        tempTotalResults = Long.parseLong(getAttribute(element, "total"));
+	    	if ( getAttribute(element, "total") != null ) {
+	    		tempTotalResults = Long.parseLong(getAttribute(element, "total"));
+	    	}
 	        tempPageLength   = Integer.parseInt(getAttribute(element, "page-length"));
 	        tempStart        = Long.parseLong(getAttribute(element, "start"));
 
@@ -1190,6 +1192,7 @@ public class SearchHandle
 						handleMatch(reader, startElement);
 						break eventType;
 					}
+					break;
 				case XMLStreamConstants.END_ELEMENT:
 					if (snippetName.equals(event.asEndElement().getName())) {
 						break events;

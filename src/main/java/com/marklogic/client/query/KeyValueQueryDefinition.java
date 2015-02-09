@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,25 @@ package com.marklogic.client.query;
 import java.util.Map;
 
 /**
- * A KeyValueQueryDefinition is a query definition suitable for use in performing a key/value query.
+ * @deprecated Use Query By Example instead for easy-to-write and much more full-featured key/value search.
+ *
+ * For instance:
+ * <pre>{@code
+ *QueryManager queryMgr = databaseClient.newQueryManager();
+ *String rawXMLQuery = "{ \"$query\": { \"author\": \"Mark Twain\" } }";
+ *StringHandle qbeHandle = new StringHandle(rawXMLQuery).withFormat(Format.JSON);
+ *RawQueryByExampleDefinition query = queryMgr.newRawQueryByExampleDefinition(qbeHandle, "myoptions");
+ *SearchHandle resultsHandle = queryMgr.search(query, new SearchHandle());
+ *}</pre>
+ *
+ * @see QueryManager#newRawCombinedQueryDefinitionAs(Format, Object)
+ * @see QueryManager#newRawCombinedQueryDefinitionAs(Format, Object, String)
+ * @see QueryManager#newRawQueryByExampleDefinition(StructureWriteHandle)
+ * @see QueryManager#newRawQueryByExampleDefinition(StructureWriteHandle, String)
+ * @see <a href="http://docs.marklogic.com/guide/java">MarkLogic Java Application Developer's Guide</a>
+ *      &gt; <a href="http://docs.marklogic.com/guide/java/searches">Searching</a> 
+ *      &gt; <a href="http://docs.marklogic.com/guide/java/searches#id_33275">Prototype a Query Using Query By Example</a>
  */
+@Deprecated
 public interface KeyValueQueryDefinition extends QueryDefinition, Map<ValueLocator,String> {
 }

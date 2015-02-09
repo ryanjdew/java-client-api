@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  */
 package com.marklogic.client.query;
 
+import com.marklogic.client.pojo.PojoQueryDefinition;
 
 /**
  * A StringQueryDefinition represents the criteria associated with a simple string query.
  */
 public interface StringQueryDefinition
-	extends QueryDefinition, ValueQueryDefinition
+    extends QueryDefinition, ValueQueryDefinition, PojoQueryDefinition
 {
     /**
      * Returns the query criteria, that is the query string.
@@ -36,7 +37,7 @@ public interface StringQueryDefinition
 
     /**
      * Sets the query criteria as a query string and returns the query
-	 * definition as a fluent convenience.
+     * definition as a fluent convenience.
      * @param criteria The query string.
      * @return	This query definition.
      */

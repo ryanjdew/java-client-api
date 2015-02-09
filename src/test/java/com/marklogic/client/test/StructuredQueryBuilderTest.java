@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,7 +238,7 @@ public class StructuredQueryBuilderTest {
         			+ "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
         			+ "xmlns:search=\"http://marklogic.com/appservices/search\" "
 					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-    				+ "<properties-query><directory-query><uri>/dir1</uri><uri>dir2</uri><infinite>false</infinite></directory-query></properties-query></query>", q);
+    				+ "<properties-fragment-query><directory-query><uri>/dir1</uri><uri>dir2</uri><infinite>false</infinite></directory-query></properties-fragment-query></query>", q);
         }
         
         t = qb.directory(4, "/dir1", "dir2");
@@ -260,7 +260,7 @@ public class StructuredQueryBuilderTest {
         			+ "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
         			+ "xmlns:search=\"http://marklogic.com/appservices/search\" "
 					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-    				+ "<locks-query><term-query><text>one</text></term-query></locks-query></query>", q);
+    				+ "<locks-fragment-query><term-query><text>one</text></term-query></locks-fragment-query></query>", q);
         }
 
         t = qb.elementConstraint("name", qb.term("one"));
@@ -326,7 +326,7 @@ public class StructuredQueryBuilderTest {
         			+ "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
         			+ "xmlns:search=\"http://marklogic.com/appservices/search\" "
 					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-    				+ "<value-query><element ns=\"\" name=\"name\"></element><text>one</text></value-query></query>", q);
+    				+ "<value-query type=\"string\"><element ns=\"\" name=\"name\"></element><text>one</text></value-query></query>", q);
         }
 
         t = qb.valueConstraint("name", 2.0, "one");
@@ -348,7 +348,7 @@ public class StructuredQueryBuilderTest {
         			+ "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
         			+ "xmlns:search=\"http://marklogic.com/appservices/search\" "
 					+ "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
-    				+ "<value-query><element ns=\"\" name=\"name\"></element><text>one</text><weight>2.0</weight></value-query></query>", q);
+    				+ "<value-query type=\"string\"><element ns=\"\" name=\"name\"></element><text>one</text><weight>2.0</weight></value-query></query>", q);
         }
 
         t = qb.wordConstraint("name", "one");

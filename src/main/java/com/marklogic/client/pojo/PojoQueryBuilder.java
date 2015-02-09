@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,47 +15,52 @@
  */
 package com.marklogic.client.pojo;
 
-import javax.xml.namespace.QName;
-
 import com.marklogic.client.query.RawStructuredQueryDefinition;
 import com.marklogic.client.query.StructuredQueryBuilder;
 import com.marklogic.client.query.StructuredQueryDefinition;
-import com.marklogic.client.util.IterableNamespaceContext;
+import com.marklogic.client.pojo.annotation.GeospatialLatitude;
+import com.marklogic.client.pojo.annotation.GeospatialLongitude;
+import com.marklogic.client.pojo.annotation.GeospatialPathIndexProperty;
+import com.marklogic.client.pojo.annotation.PathIndexProperty;
+import com.marklogic.client.pojo.annotation.PathIndexProperty.ScalarType;
+import com.marklogic.client.pojo.util.GenerateIndexConfig;
  
-/** Extends StructuredQueryBuilder with convenience methods specific to working with pojos.
+/** Specific to pojos yet similar to StructuredQueryBuilder, this class generates structured queries.
+ * It adds convenience methods specific to working with pojos and does not replicate 
+ * StructuredQueryBuilder methods that don't make sense for pojos.
  * The goal of {@link com.marklogic.client.pojo the pojo facade} is to simplify working with 
  * custom pojos. PojoQueryBuilder keeps all the powerful queries available via 
  * StructuredQueryBuilder while enabling queries across objects persisted using 
  * {@link PojoRepository}.
  *
- * <p>For methods which accept a "pojoField" argument and for {@link #geoField geoField}, we are refering to 
- * fields (or properties) appropriate for 
+ * <p>For methods which accept a "pojoProperty" argument we are refering to
+ * properties appropriate for 
  * <a href="http://docs.oracle.com/javase/tutorial/javabeans/">JavaBeans</a>,
- * including fields accessible via public getters and setters, or public fields.</p>
+ * including properties accessible via public getters and setters, or public fields.</p>
  *
  *
  * <p>Where StructuredQueryBuilder accepts StructuredQueryBuilder.TextIndex as a first argument
  * to 
- * {@link #value(StructuredQueryBuilder.TextIndex, String...) value(TextIndex, String...)} 
+ * {@link StructuredQueryBuilder#value(StructuredQueryBuilder.TextIndex, String...) value(TextIndex, String...)} 
  * and 
- * {@link #word(StructuredQueryBuilder.TextIndex, String...) word(TextIndex, String...)}  
+ * {@link StructuredQueryBuilder#word(StructuredQueryBuilder.TextIndex, String...) word(TextIndex, String...)}  
  * methods,
  * PojoQueryBuilder adds shortcut methods which accept as the first argument a String name of the 
- * pojoField. Similarly, PojoQueryBuilder accepts String pojoField arguments wherever 
+ * pojoProperty. Similarly, PojoQueryBuilder accepts String pojoProperty arguments wherever 
  * StructuredQueryBuilder accepts StructuredQueryBuilder.Element,
  * StructuredQueryBuilder.Attribute, and StructuredQueryBuilder.PathIndex
  * as arguments to 
- * {@link #geoAttributePair(StructuredQueryBuilder.Element, StructuredQueryBuilder.Attribute,
+ * {@link StructuredQueryBuilder#geoAttributePair(StructuredQueryBuilder.Element, StructuredQueryBuilder.Attribute,
  *   StructuredQueryBuilder.Attribute)
  *   geoAttributePair(Element, Attribute, Attribute)}, 
- * {@link #geoElement(StructuredQueryBuilder.Element)
+ * {@link StructuredQueryBuilder#geoElement(StructuredQueryBuilder.Element)
  *   geoElement(Element)}, 
- * {@link #geoElement(StructuredQueryBuilder.Element, StructuredQueryBuilder.Element)
+ * {@link StructuredQueryBuilder#geoElement(StructuredQueryBuilder.Element, StructuredQueryBuilder.Element)
  *   geoElement(Element, Element)}, 
- * {@link #geoElementPair(StructuredQueryBuilder.Element, StructuredQueryBuilder.Element,
+ * {@link StructuredQueryBuilder#geoElementPair(StructuredQueryBuilder.Element, StructuredQueryBuilder.Element,
  *   StructuredQueryBuilder.Element)
  *   geoElementPair(Element, Element, Element)}, 
- * {@link #geoPath(StructuredQueryBuilder.PathIndex)
+ * {@link StructuredQueryBuilder#geoPath(StructuredQueryBuilder.PathIndex)
  *   geoPath(PathIndex)}
  * </p>
  *
@@ -71,14 +76,14 @@ import com.marklogic.client.util.IterableNamespaceContext;
  *
  * <p>Similarly, without the pojo facade you might persist your pojos using 
  * {@link com.marklogic.client.io.JAXBHandle JAXBHandle} and if they
- * have a geoPosition field which is an object with latitude and longitude pojoFields 
+ * have a geoPosition property which is an object with latitude and longitude pojoProperty's 
  * (which persist as elements) you might query them thusly:</p>
  * <pre>{@code    StructuredQueryBuilder sqb = new StructuredQueryBuilder();
  *    StructuredQueryBuilder.GeospatialIndex geoIdx = sqb.geoElementPair(
  *      sqb.element("geoPosition"), sqb.element("latitude"), sqb.element("longitude"));}</pre>
  *
  * <p>But if you use {@link PojoRepository} to persist your pojos with a latitude and longitude
- * pojoFields, you can query them more simply:</p>
+ * pojoProperty's, you can query them more simply:</p>
  * <pre>{@code    PojoQueryBuilder pqb = pojoRepository.getQueryBuilder();
  *    StructuredQueryBuilder.GeospatialIndex geoIdx = 
  *      pqb.geoPair("latitude", "longitude");}</pre>
@@ -99,110 +104,201 @@ import com.marklogic.client.util.IterableNamespaceContext;
  *      void setContinent();
  *    }</pre>
  *
- * <p>That is, you have a pojo class City with a field "country" of type
- * Country, you could query fields on the nested country thusly:</p>
+ * <p>That is, you have a pojo class City with a property "country" of type
+ * Country, you could query properties on the nested country thusly:</p>
  * <pre>{@code    PojoRepository<City, Integer> cities = 
  *      databaseClient.newPojoRepository(City.class, Integer.class);
  *    PojoQueryBuilder citiesQb = cities.getQueryBuilder();
- *    PojoQueryBuilder countriesQb = citiesQb.containerQuery("country");
+ *    PojoQueryBuilder countriesQb = citiesQb.containerQueryBuilder("country");
  *    QueryDefinition query = countriesQb.value("continent", "EU"); }</pre>
  */
 public interface PojoQueryBuilder<T> {
-    public StructuredQueryDefinition containerQuery(String pojoField,
+
+    /** Copied directly from  {@link com.marklogic.client.query.StructuredQueryBuilder.Operator}**/
+	public enum Operator {
+        LT, LE, GT, GE, EQ, NE;
+    }
+    
+    /** @return a query matching pojos of type T containing the pojoProperty with contents
+     *          or children matching the specified query */
+    public StructuredQueryDefinition containerQuery(String pojoProperty,
         StructuredQueryDefinition query);
-    public StructuredQueryDefinition containerQuery(StructuredQueryDefinition query);
-    public PojoQueryBuilder<T>          containerQuery(String pojoField);
-    public StructuredQueryBuilder.GeospatialIndex
-        geoPair(String latitudeFieldName, String longitudeFieldName);
+
+    /** Use this method to provide a query builder that can query a nested object within your pojo.
+     * All other PojoQueryBuilder methods create queries for direct children of T which are native
+     * types.  If a child of T is a pojo, and you need to query one of its children, this method
+     * provides you a query builder that is specific to that child object.  To query further levels of 
+     * nested objects you may use this method on the each returned PojoQueryBuilder which represents
+     * one level deeper.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     *     that is a pojo of type clazz
+     * @param clazz the class type of the nested pojo
+     * @return a PojoQueryBuilder for nested pojos of the type corresponding with pojoProperty */
+    public <C> PojoQueryBuilder<C> containerQueryBuilder(String pojoProperty, Class<C> clazz);
     /**
-     * NOTE: Since the pojo facade abstracts away the persistence details, "field" here refers 
-     * to a pojoField like all other convenience methods in PojoQueryBuilder,not
-     * a MarkLogic field specified on the server.
-     * @param pojoField the name of a field (or getter or setter) on class T
+     * For use in a {@link #geospatial geospatial} query, reference a pair of properties.  These properties
+     * should ideally have Geospatial Element Pair Indexes configured in the database.  For help
+     * creating these indexes, see {@link GenerateIndexConfig}, {@link GeospatialLatitude}, and
+     * {@link GeospatialLongitude}.
+     * @param latitudePropertyName the name of a field or JavaBean property (accessed via getter or setter)
+     *     ideally annotated with {@literal @}{@link GeospatialLatitude}
+     * @param longitudePropertyName the name of a field or JavaBean property (accessed via getter or setter)
+     *     ideally annotated with {@literal @}{@link GeospatialLongitude}
      */
     public StructuredQueryBuilder.GeospatialIndex
-        geoField(String pojoField);
+        geoPair(String latitudePropertyName, String longitudePropertyName);
+    /* no reason to expose geoProperty for now because it's redundant with geoPath
     public StructuredQueryBuilder.GeospatialIndex
-        geoPath(String pojoField);
-    public StructuredQueryDefinition range(String pojoField,
-        StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition range(String pojoField, String[] options,
-        StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition value(String pojoField, String... values);
-    public StructuredQueryDefinition value(String pojoField, Boolean value);
-    public StructuredQueryDefinition value(String pojoField, Number... values);
-    public StructuredQueryDefinition value(String pojoField, String[] options,
+        geoProperty(String pojoProperty);
+    */
+    /**
+     * For use in a {@link #geospatial geospatial} query, reference a geo property which has
+     * a corresponding Geospatial Path Range Index configured in the database.   For help
+     * creating this index, see {@link GenerateIndexConfig} and {@link GeospatialPathIndexProperty}.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     *     ideally annotated with {@literal @}{@link GeospatialPathIndexProperty}
+     */
+    public StructuredQueryBuilder.GeospatialIndex
+        geoPath(String pojoProperty);
+    /**
+     * Query a Path Range Index configured in the database for a pojo property.  Make sure the datatype for
+     * your values parameter match the {@link ScalarType datatype} configured.  For help
+     * creating this index, see {@link GenerateIndexConfig} and {@link PathIndexProperty}.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     *     annotated with {@literal @}{@link PathIndexProperty}
+     * @param operator the operator used to compare property values with passed values
+     * @param values the possible datatyped values for the comparison.  Make sure the datatypes
+     *     match the {@link ScalarType datatype} configured.
+     */
+    public StructuredQueryDefinition range(String pojoProperty,
+        PojoQueryBuilder.Operator operator, Object... values);
+    /**
+     * Query a Path Range Index configured in the database for a pojo property.  Make sure the datatype for
+     * your values parameter match the {@link ScalarType datatype} configured.  For help
+     * creating this index, see {@link GenerateIndexConfig} and {@link PathIndexProperty}.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     *     annotated with {@literal @}{@link PathIndexProperty}
+     * @param options
+     *     <a href="http://docs.marklogic.com/cts:path-range-query#options">options</a> for fine tuning the query
+     * @param operator the operator used to compare property values with passed values
+     * @param values the possible datatyped values for the comparison.  Make sure the datatypes
+     *     match the {@link ScalarType datatype} configured.
+     */
+    public StructuredQueryDefinition range(String pojoProperty, String[] options,
+        PojoQueryBuilder.Operator operator, Object... values);
+    /**
+     * Filter search results by properties matching specified values.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param values match a persisted pojo of type T if it has the property with any of the values
+     */
+    public StructuredQueryDefinition value(String pojoProperty, String... values);
+    /**
+     * Filter search results by properties matching specified value.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param value match a persisted pojo of type T if it has the property with the boolean value
+     */
+    public StructuredQueryDefinition value(String pojoProperty, Boolean value);
+    /**
+     * Filter search results by properties matching specified values.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param values match a persisted pojo of type T if it has the property with any of the numeric values
+     */
+    public StructuredQueryDefinition value(String pojoProperty, Number... values);
+    /**
+     * Filter search results by properties matching specified values.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param options
+     *     <a href="http://docs.marklogic.com/cts:json-property-value-query#options">options</a> for fine tuning the query
+     * @param weight the multiplier for the match in the document ranking
+     * @param values match a persisted pojo of type T if it has the property with any of the values
+     */
+    public StructuredQueryDefinition value(String pojoProperty, String[] options,
         double weight, String... values);
-    public StructuredQueryDefinition value(String pojoField, String[] options,
+    /**
+     * Filter search results by properties matching specified values.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param options
+     *     <a href="http://docs.marklogic.com/cts:json-property-value-query#options">options</a> for fine tuning the query
+     * @param weight the multiplier for the match in the document ranking
+     * @param value match a persisted pojo of type T if it has the property with the boolean value
+     */
+    public StructuredQueryDefinition value(String pojoProperty, String[] options,
         double weight, Boolean value);
-    public StructuredQueryDefinition value(String pojoField, String[] options,
+    /**
+     * Filter search results by properties matching specified values.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param options
+     *     <a href="http://docs.marklogic.com/cts:json-property-value-query#options">options</a> for fine tuning the query
+     * @param weight the multiplier for the match in the document ranking
+     * @param values match a persisted pojo of type T if it has the property with any of the numeric values
+     */
+    public StructuredQueryDefinition value(String pojoProperty, String[] options,
         double weight, Number... values);
-    public StructuredQueryDefinition word(String pojoField, String... words);
-    public StructuredQueryDefinition word(String pojoField, String[] options,
+    /**
+     * Filter search results by properties with at least one of the specified words or phrases.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param words match a persisted pojo of type T if it has the property with any of the words or phrases
+     */
+    public StructuredQueryDefinition word(String pojoProperty, String... words);
+    /**
+     * Filter search results by properties with at least one of the specified words or phrases.
+     * @param pojoProperty the name of a field or JavaBean property (accessed via getter or setter) on class T
+     * @param options
+     *     <a href="http://docs.marklogic.com/cts:word-query#options">options</a> for fine tuning the query
+     * @param weight the multiplier for the match in the document ranking
+     * @param words match a persisted pojo of type T if it has the property with any of the words or phrases
+     */
+    public StructuredQueryDefinition word(String pojoProperty, String[] options,
         double weight, String... words);
 
-    // All following method signatures copied from StructuredQueryBuilder since it has no interface we can extend
+    /** Copied directly from  {@link StructuredQueryBuilder#and StructuredQuerybuilder.and}**/
     public StructuredQueryDefinition and(StructuredQueryDefinition... queries);
+    /** Copied directly from  {@link StructuredQueryBuilder#andNot StructuredQuerybuilder.andNot}**/
     public StructuredQueryDefinition andNot(StructuredQueryDefinition positive, StructuredQueryDefinition negative);
-    public StructuredQueryBuilder.Attribute attribute(QName qname);
-    public StructuredQueryBuilder.Attribute attribute(String name);
+    /** Copied directly from  {@link StructuredQueryBuilder#boost StructuredQuerybuilder.boost}**/
     public StructuredQueryDefinition boost(StructuredQueryDefinition matchingQuery, StructuredQueryDefinition boostingQuery);
+    /** Copied directly from  {@link StructuredQueryBuilder#box StructuredQuerybuilder.box}**/
     public StructuredQueryBuilder.Region box(double south, double west, double north, double east);
+    /** Copied directly from  {@link StructuredQueryBuilder#build StructuredQuerybuilder.build}**/
     public RawStructuredQueryDefinition build(StructuredQueryDefinition... queries);
+    /** Copied directly from  {@link StructuredQueryBuilder#circle(double, double, double) StructuredQuerybuilder.circle(double, double, double)}**/
     public StructuredQueryBuilder.Region circle(double latitude, double longitude, double radius);
-    public StructuredQueryBuilder.Region circle(StructuredQueryBuilder.Point center, double radius);
+    /** Copied directly from  {@link StructuredQueryBuilder#circle(StructuredQueryBuilder.Point, double) StructuredQuerybuilder.circle(StructuredQueryBuilder.Point, double)}**/
+    public StructuredQueryBuilder.Region circle(@SuppressWarnings("deprecation") StructuredQueryBuilder.Point center, double radius);
+    /** Copied directly from  {@link StructuredQueryBuilder#collection(String...) StructuredQuerybuilder.collection(String...)}**/
     public StructuredQueryDefinition collection(String... uris);
-    public StructuredQueryDefinition collectionConstraint(String constraintName, String... uris);
-    public StructuredQueryDefinition containerConstraint(String constraintName, StructuredQueryDefinition query);
-    public StructuredQueryDefinition containerQuery(StructuredQueryBuilder.ContainerIndex index, StructuredQueryDefinition query);
-    public StructuredQueryDefinition customConstraint(String constraintName, String... text);
-    public StructuredQueryDefinition directory(boolean isInfinite, String... uris);
-    public StructuredQueryDefinition directory(int depth, String... uris);
-    public StructuredQueryDefinition document(String... uris);
-    public StructuredQueryDefinition documentFragment(StructuredQueryDefinition query);
-    public StructuredQueryBuilder.Element element(QName qname);
-    public StructuredQueryBuilder.Element element(String name);
-    public StructuredQueryBuilder.ElementAttribute elementAttribute(StructuredQueryBuilder.Element element, StructuredQueryBuilder.Attribute attribute);
-    public StructuredQueryDefinition elementConstraint(String constraintName, StructuredQueryDefinition query);
-    public StructuredQueryBuilder.Field field(String name);
-    public StructuredQueryBuilder.GeospatialIndex geoAttributePair(StructuredQueryBuilder.Element parent, StructuredQueryBuilder.Attribute lat, StructuredQueryBuilder.Attribute lon);
-    public StructuredQueryBuilder.GeospatialIndex geoElement(StructuredQueryBuilder.Element element);
-    public StructuredQueryBuilder.GeospatialIndex geoElement(StructuredQueryBuilder.Element parent, StructuredQueryBuilder.Element element);
-    public StructuredQueryBuilder.GeospatialIndex geoElementPair(StructuredQueryBuilder.Element parent, StructuredQueryBuilder.Element lat, StructuredQueryBuilder.Element lon);
-    public StructuredQueryBuilder.GeospatialIndex geoPath(StructuredQueryBuilder.PathIndex pathIndex);
-    public StructuredQueryDefinition geospatial(StructuredQueryBuilder.GeospatialIndex index, StructuredQueryBuilder.FragmentScope scope, String[] options, StructuredQueryBuilder.Region... regions);
+    /** Copied from {@link StructuredQueryBuilder#geospatial(StructuredQueryBuilder.GeospatialIndex, StructuredQueryBuilder.FragmentScope, String[], StructuredQueryBuilder.Region...) StructuredQuerybuilder.geospatial(StructuredQueryBuilder.GeospatialIndex, StructuredQueryBuilder.FragmentScope, String[], StructuredQueryBuilder.Region...)} but without StructuredQueryBuilder.FragmentScope**/
+    public StructuredQueryDefinition geospatial(StructuredQueryBuilder.GeospatialIndex index, String[] options, StructuredQueryBuilder.Region... regions);
+    /** Copied directly from  {@link StructuredQueryBuilder#geospatial(StructuredQueryBuilder.GeospatialIndex, StructuredQueryBuilder.Region...) StructuredQuerybuilder.geospatial(StructuredQueryBuilder.GeospatialIndex, StructuredQueryBuilder.Region...)}**/
     public StructuredQueryDefinition geospatial(StructuredQueryBuilder.GeospatialIndex index, StructuredQueryBuilder.Region... regions);
-    public StructuredQueryDefinition geospatialConstraint(String constraintName, StructuredQueryBuilder.Region... regions);
-    public IterableNamespaceContext getNamespaces();
-    public StructuredQueryDefinition locks(StructuredQueryDefinition query);
+    /** Copied directly from  {@link StructuredQueryBuilder#near(int, double, StructuredQueryBuilder.Ordering, StructuredQueryDefinition...) StructuredQuerybuilder.near(int, double, StructuredQueryBuilder.Ordering, StructuredQueryDefinition...)}**/
     public StructuredQueryDefinition near(int distance, double weight, StructuredQueryBuilder.Ordering order, StructuredQueryDefinition... queries);
+    /** Copied directly from  {@link StructuredQueryBuilder#near(StructuredQueryDefinition...) StructuredQuerybuilder.near(StructuredQueryDefinition...)}**/
     public StructuredQueryDefinition near(StructuredQueryDefinition... queries);
+    /** Copied directly from  {@link StructuredQueryBuilder#not StructuredQuerybuilder.not}**/
     public StructuredQueryDefinition not(StructuredQueryDefinition query);
+    /** Copied directly from  {@link StructuredQueryBuilder#notIn StructuredQuerybuilder.and}**/
     public StructuredQueryDefinition notIn(StructuredQueryDefinition positive, StructuredQueryDefinition negative);
+    /** Copied directly from  {@link StructuredQueryBuilder#or StructuredQuerybuilder.and}**/
     public StructuredQueryDefinition or(StructuredQueryDefinition... queries);
-    public StructuredQueryBuilder.PathIndex pathIndex(String path);
+    /** Copied directly from  {@link StructuredQueryBuilder#point StructuredQuerybuilder.point}**/
     public StructuredQueryBuilder.Region point(double latitude, double longitude);
-    public StructuredQueryBuilder.Region polygon(StructuredQueryBuilder.Point... points);
-    public StructuredQueryDefinition properties(StructuredQueryDefinition query);
-    public StructuredQueryDefinition propertiesConstraint(String constraintName, StructuredQueryDefinition query);
-    public StructuredQueryDefinition range(StructuredQueryBuilder.RangeIndex index, String type, String[] options, StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition range(StructuredQueryBuilder.RangeIndex index, String type, String collation, String[] options, StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition range(StructuredQueryBuilder.RangeIndex index, String type, String collation, StructuredQueryBuilder.FragmentScope scope, String[] options, StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition range(StructuredQueryBuilder.RangeIndex index, String type, String collation, StructuredQueryBuilder.FragmentScope scope, StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition range(StructuredQueryBuilder.RangeIndex index, String type, String collation, StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition range(StructuredQueryBuilder.RangeIndex index, String type, StructuredQueryBuilder.Operator operator, Object... values);
-    public StructuredQueryDefinition rangeConstraint(String constraintName, StructuredQueryBuilder.Operator operator, String... values);
-    public String[] rangeOptions(String... options);
-    public void setNamespaces(IterableNamespaceContext namespaces);
+    /** Copied directly from  {@link StructuredQueryBuilder#polygon StructuredQuerybuilder.polygon}**/
+    public StructuredQueryBuilder.Region polygon(@SuppressWarnings("deprecation") StructuredQueryBuilder.Point... points);
+    /** Copied directly from  {@link StructuredQueryBuilder#term(double, String...) StructuredQuerybuilder.term(double, String...)}**/
     public StructuredQueryDefinition term(double weight, String... terms);
+    /** Copied directly from  {@link StructuredQueryBuilder#term(String...) StructuredQuerybuilder.term(String...)}**/
     public StructuredQueryDefinition term(String... terms);
-    public StructuredQueryDefinition value(StructuredQueryBuilder.TextIndex index, String... values);
-    public StructuredQueryDefinition value(StructuredQueryBuilder.TextIndex index, StructuredQueryBuilder.FragmentScope scope, String[] options, double weight, String... values);
-    public StructuredQueryDefinition valueConstraint(String constraintName, double weight, String... values);
-    public StructuredQueryDefinition valueConstraint(String constraintName, String... values);
-    public StructuredQueryDefinition word(StructuredQueryBuilder.TextIndex index, String... words);
-    public StructuredQueryDefinition word(StructuredQueryBuilder.TextIndex index, StructuredQueryBuilder.FragmentScope scope, String[] options, double weight, String... words);
-    public StructuredQueryDefinition wordConstraint(String constraintName, double weight, String... words);
-    public StructuredQueryDefinition wordConstraint(String constraintName, String... words);
+
+    /** Wraps the structured query into a combined query with options containing
+     * <a href="http://docs.marklogic.com/guide/rest-dev/appendixb#id_29496">
+     *     &lt;search-option&gt;filtered&lt;/search-option&gt;</a> so results are accurate 
+     * though slower.
+     *
+     * @return a QueryDefinition that can be used with PojoRepository.search() 
+     *         (a REST combined query under the hood)
+     */
+    public PojoQueryDefinition filteredQuery(StructuredQueryDefinition query);
+
 }
 

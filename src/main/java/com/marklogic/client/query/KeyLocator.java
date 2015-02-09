@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 package com.marklogic.client.query;
 
 /**
+ * @deprecated Use {@link RawQueryByExampleDefinition Query By Example} instead for easy-to-write and much more full-featured key/value search.
+ * <br><br>
+ *
  * A Key Locator specifies a JSON key containing a value as part
  * of a KeyValueQueryDefinition.
  */
+@Deprecated
 public interface KeyLocator extends ValueLocator {
     /**
      * Returns a JSON key.

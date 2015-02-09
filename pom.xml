@@ -2,13 +2,39 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.marklogic</groupId>
-	<artifactId>client-api-java</artifactId>
+	<artifactId>java-client-api</artifactId>
 	<packaging>jar</packaging>
-	<version>3.0-SNAPSHOT</version>
-	<name>client-api-java</name>
-	<url>http://developer.marklogic.com</url>
+	<version>3.0.1</version>
+	<name>MarkLogic Java Client API</name>
+	<description>The official MarkLogic Java client API.</description>
+	<url>https://github.com/marklogic/java-client-api</url>
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>MarkLogic</name>
+			<email>java-sig@marklogic.com</email>
+			<organization>MarkLogic</organization>
+			<organizationUrl>https://www.marklogic.com</organizationUrl>
+		</developer>
+		<developer>
+			<name>MarkLogic Github Contributors</name>
+			<email>general@developer.marklogic.com</email>
+			<organization>Github Contributors</organization>
+			<organizationUrl>https://github.com/marklogic/java-client-api/graphs/contributors</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+			<connection>scm:git:git@github.com:marklogic/java-client-api.git</connection>
+			<developerConnection>scm:git:git@github.com:marklogic/java-client-api.git</developerConnection>
+		<url>git@github.com:marklogic/java-client-api.git</url>
+	</scm>
 	<properties>
-		<javadoc-title>${project.name} 2.0 ${maven.build.timestamp}</javadoc-title>
+		<javadoc-title>${project.name} ${project.version} ${maven.build.timestamp}</javadoc-title>
 		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <github.global.server>github</github.global.server>
@@ -36,10 +62,10 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.8.1</version>
 				<configuration>
-					<bottom><![CDATA[Copyright &#169; 2013-2014 MarkLogic Corporation.]]></bottom>
+					<bottom><![CDATA[Copyright &#169; 2013-2015 MarkLogic Corporation.]]></bottom>
 					<excludePackageNames>*.impl:*.jaxb:*.test:*.test.*</excludePackageNames>
 					<links>
-						<link>http://docs.oracle.com/javase/6/docs/api/</link>
+						<link>http://docs.oracle.com/javase/8/docs/api/</link>
 					</links>
 					<overview>${basedir}/src/main/javadoc/overview.html</overview>
 					<show>public</show>
@@ -141,6 +167,7 @@
                 <version>0.9</version>
                 <configuration>
                     <message>Maven artifacts for ${project.version}</message>
+                    <merge>true</merge>
                     <noJekyll>true</noJekyll>
                     <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
                     <branch>refs/heads/mvn-repo</branch>
@@ -160,8 +187,44 @@
         </plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>Java 8</id>
+			<activation>
+				<jdk>1.8</jdk>
+			</activation>
+			<properties>
+				<!-- Disable Java 8 overly strict javadoc linter when building with Java 8
+					http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
+					-->
+				<additionalparam>-Xdoclint:none</additionalparam>
+			</properties>
+		</profile>
+	</profiles>
 	<dependencies>
 		<!-- direct build / run dependencies -->
+        <!--
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.17</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-apache-client4</artifactId>
+			<version>1.17</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>1.17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+			<version>2.12</version>
+		</dependency>
+        -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
@@ -180,7 +243,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.0.12</version>
+			<version>1.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -201,11 +264,6 @@
 			<groupId>org.jvnet.mimepull</groupId>
 			<artifactId>mimepull</artifactId>
 			<version>1.9.4</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.0.12</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -293,12 +351,6 @@
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-csv</artifactId>
 			<version>2.4.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>16.0.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

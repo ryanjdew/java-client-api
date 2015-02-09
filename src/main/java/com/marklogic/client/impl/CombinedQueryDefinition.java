@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.marklogic.client.test.example.cookbook;
+package com.marklogic.client.impl;
 
-import static org.junit.Assert.assertTrue;
+import com.marklogic.client.query.QueryDefinition;
+import com.marklogic.client.query.ValueQueryDefinition;
+import com.marklogic.client.pojo.PojoQueryDefinition;
 
-import java.io.IOException;
-
-import org.junit.Test;
-
-import com.marklogic.client.example.cookbook.KeyValueSearch;
-
-public class KeyValueSearchTest {
-	@Test
-	public void testMain() {
-		boolean succeeded = false;
-		try {
-			KeyValueSearch.main(new String[0]);
-			succeeded = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		assertTrue("KeyValueSearch example failed", succeeded);
-	}
+public interface CombinedQueryDefinition 
+    extends QueryDefinition, ValueQueryDefinition, PojoQueryDefinition
+{
+    /**
+     * Returns the combined query definition as a serialized XML string.
+     * 
+     * @return The serialized definition.
+     */
+    public String serialize();
 }
+
+

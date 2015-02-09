@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,6 +113,9 @@ public class TestServerBootstrapper {
 	
 	public static void main(String[] args) throws ClientProtocolException,
 			IOException {
+		//System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "debug");
+		//System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+
 		TestServerBootstrapper bootstrapper = new TestServerBootstrapper();
 
 		if ((args.length == 1) && (args[0].equals("teardown"))) {

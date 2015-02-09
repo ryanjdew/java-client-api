@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 MarkLogic Corporation
+ * Copyright 2012-2015 MarkLogic Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,21 @@
  */
 package com.marklogic.client.query;
 
-
+import com.marklogic.client.pojo.PojoQueryDefinition;
 
 /**
  * A StructuredQueryDefinition represents a structured query.
  * 
  * Instances of this interface are produced by StructuredQueryBuilder.
  */
-public interface StructuredQueryDefinition extends QueryDefinition,
-		ValueQueryDefinition {
-	/**
-	 * Returns the structured query definition as a serialized XML string.
-	 * 
-	 * @return The serialized definition.
-	 */
-	public String serialize();
+public interface StructuredQueryDefinition 
+    extends QueryDefinition, ValueQueryDefinition, PojoQueryDefinition
+{
+    /**
+     * Returns the structured query definition as a serialized XML string.
+     * 
+     * @return The serialized definition.
+     */
+    public String serialize();
 
 }
