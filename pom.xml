@@ -4,7 +4,7 @@
 	<groupId>com.marklogic</groupId>
 	<artifactId>java-client-api</artifactId>
 	<packaging>jar</packaging>
-	<version>3.0.1</version>
+	<version>4.0-SNAPSHOT</version>
 	<name>MarkLogic Java Client API</name>
 	<description>The official MarkLogic Java client API.</description>
 	<url>https://github.com/marklogic/java-client-api</url>
@@ -164,7 +164,7 @@
             <plugin>
                 <groupId>com.github.github</groupId>
                 <artifactId>site-maven-plugin</artifactId>
-                <version>0.9</version>
+                <version>0.10</version>
                 <configuration>
                     <message>Maven artifacts for ${project.version}</message>
                     <merge>true</merge>
